@@ -5,7 +5,7 @@
 #include <string.h>
 #include <mysql/errmsg.h>
 #include <assert.h>
-
+#include <stdio.h>
 #include "glo_def.h"
 
 class SqlRecordSet
@@ -37,7 +37,8 @@ public:
 		assert(m_pRes == NULL);
 		if (m_pRes)
 		{
-			LOG_WARN("the MYSQL_RES has already stored result. may will cause memory leak!");
+			//LOG_WARN("the MYSQL_RES has already stored result. may will cause memory leak!");
+			printf("the MYSQL_RES has already stored result. may will cause memory leak!");
 		}
 		m_pRes = pRes;
 	}

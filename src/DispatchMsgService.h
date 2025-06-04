@@ -13,11 +13,15 @@
 //forward_list是C++11新增的单链表存储相同个数的同类型元素，单链表耗用的内存空间更少，
 //空间利用率更高，并且对于实现某些操作单链表的执行效率也更高。
 #include <forward_list> 
+#include <condition_variable>  // 头文件
 #include "ievent.h"
 #include "eventtype.h"
 #include "iEventHandler.h"
 #include "threadpool/thread_pool.h"
 #include "NetworkInterface.h"
+
+
+
 
 
 class DispatchMsgService
@@ -49,10 +53,11 @@ public:
 	static void decUserFromList(struct bufferevent* user);
 	static std::forward_list<struct bufferevent*> getUserList();
 
-	iEvent* parseEvent(const char *message, u32 len, i32 eid);
+	iEvent* parseEvent(const char* message, u32 len, i32 eid);
 	
 	//处理响应事件
 	void handleAllResponseEvent(NetworkInterface * interface);
+	static  void handle_response_task(void* data);
 	//发送响应信息
 	void sendPesponseMessage(iEvent* ev, EventID Eid, NetworkInterface* interface);
 
@@ -69,8 +74,12 @@ protected:
 	
 	bool svr_exit_;
 
+	thread_pool_t* response_tp;//响应事件线程池
 	static std::queue<iEvent *> response_events;//响应事件队列
+
 	static pthread_mutex_t queue_mutext;//响应事件锁
+	static pthread_cond_t queue_cond;            // 响应事件条件变量
+
 	static NetworkInterface* NTIF_;  //网络监听服务
 };
 

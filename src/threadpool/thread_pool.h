@@ -7,7 +7,7 @@ extern "C" {
 
 #include "thread.h"
 
-#define DEFAULT_THREADS_NUM 8
+#define DEFAULT_THREADS_NUM 14
 #define DEFAULT_QUEUE_NUM  65535
 
 
@@ -47,6 +47,8 @@ extern "C" {
 	void thread_task_free(thread_task_t *task);
 	int_t thread_task_post(thread_pool_t *tp, thread_task_t *task);
 	thread_pool_t* thread_pool_init();
+	thread_pool_t* thread_pool_init_with_threads(uint_t threads, const char* name);
+
 	void thread_pool_destroy(thread_pool_t *tp);
 
 #ifdef __cpplusplus

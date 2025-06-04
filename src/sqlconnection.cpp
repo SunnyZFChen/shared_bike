@@ -1,4 +1,5 @@
 ﻿#include "sqlconnection.h"
+#include <malloc.h>
 
 
 MysqlConnection::MysqlConnection(): mysql_(NULL)
@@ -22,19 +23,19 @@ bool MysqlConnection::Init(const char * szHost, int nPort, const char * szUser, 
 	mysql_ = mysql_init(mysql_);
 	if (mysql_ == NULL)
 	{
-		LOG_ERROR("init mysql failed %s, %d", this->GetErrInfo(), errno);
+		//LOG_ERROR("init mysql failed %s, %d", this->GetErrInfo(), errno);
 		return false;
 	}
 	char cAuto = 1;
 	//连接选项
 	if (mysql_options(mysql_, mysql_option::MYSQL_OPT_RECONNECT, &cAuto) != 0)
 	{
-		LOG_ERROR("mysql_options MYSQL_OPT_RECONNECT failed ");
+		//LOG_ERROR("mysql_options MYSQL_OPT_RECONNECT failed ");
 	}
 	//连接
 	if (mysql_real_connect(mysql_, szHost, szUser, szPasswd, szDb, nPort, NULL, 0) == NULL)
 	{
-		LOG_ERROR("connect mysql failed %s, %d", this->GetErrInfo(), errno);
+		//LOG_ERROR("connect mysql failed %s, %d", this->GetErrInfo(), errno);
 		return false;
 	}
 	
@@ -77,7 +78,7 @@ bool MysqlConnection::Execute(const char * szSql, SqlRecordSet& recordSet)
 
 			Reconnect();
 		}
-		LOG_ERROR("sql语句[%s]执行失败！\n", szSql);
+		//LOG_ERROR("sql语句[%s]执行失败！\n", szSql);
 		return false;
 	}
 

@@ -15,7 +15,7 @@ BusinessProcessor::~BusinessProcessor()
 bool BusinessProcessor::init()
 {
 	SqlTables tables(mysqlconn_);
-	LOG_DEBUG("数据库正在初始化......");
+	//LOG_DEBUG("数据库正在初始化......");
 	/* (!mysqlconn_->Execute("create table Wo666(name char(6), age int)"))
 	{
 		LOG_ERROR("create table Wo666(name char(6), age int) failed!\n");
@@ -23,22 +23,22 @@ bool BusinessProcessor::init()
 	}*/
 	if (!tables.CreateBikeTable())
 	{
-		LOG_ERROR("create shared_bike table failed!\n");
+		//LOG_ERROR("create shared_bike table failed!\n");
 		printf("create shared_bike table failed!\n");
 		return false;
 	}
 	if(!tables.CreateUserInfo())
 	{
-		LOG_ERROR("create user table failed！\n");
+		//LOG_ERROR("create user table failed！\n");
 		printf("create user table failed！\n");
 		return false;
 	}
 	if (!tables.UserRideRecordInfo())
 	{
-		LOG_ERROR("create UserRideRecordInfo table failed！\n");
+		//LOG_ERROR("create UserRideRecordInfo table failed！\n");
 		printf("create UserRideRecordInfo table failed！\n");
 		return false;
 	}
-	LOG_DEBUG("数据库初始化完成......\n");
+	//LOG_DEBUG("数据库初始化完成......\n");
 	return true;
 }

@@ -23,7 +23,7 @@ mobile_index(mobile)	index		索引
 */
 	bool CreateUserInfo()
 	{
-		LOG_DEBUG("正在创建用户信息表......");
+		//LOG_DEBUG("正在创建用户信息表......");
 		const char* pUserInfoTable = "\
 								CREATE TABLE IF NOT EXISTS userinfo( \
 								id			 int(16)			NOT NULL primary key auto_increment, \
@@ -37,10 +37,10 @@ mobile_index(mobile)	index		索引
 								)";
 		if (!sqlconn_->Execute(pUserInfoTable))
 		{
-			LOG_ERROR("create table userinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
+			//LOG_ERROR("create table userinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
 			return false;
 		}
-		LOG_DEBUG("用户信息表创建成功！");
+		//LOG_DEBUG("用户信息表创建成功！");
 
 		//创建一个管理员账户
 		char sql_content[1024];
@@ -49,7 +49,7 @@ mobile_index(mobile)	index		索引
 		;
 		if (!sqlconn_->Execute(sql_content, record_set))
 		{
-			LOG_DEBUG("sql语句执行失败！错误原因[%s]", sqlconn_->GetErrInfo());
+			//LOG_DEBUG("sql语句执行失败！错误原因[%s]", sqlconn_->GetErrInfo());
 			return false;
 		}
 
@@ -61,7 +61,7 @@ mobile_index(mobile)	index		索引
 			sprintf(sql_content, "INSERT INTO userinfo(username, userpassword) VALUES('czf', 'czf')");
 			if (!sqlconn_->Execute(sql_content))
 			{
-				LOG_DEBUG("管理员信息插入失败！错误原因[%s]", sqlconn_->GetErrInfo());
+				//LOG_DEBUG("管理员信息插入失败！错误原因[%s]", sqlconn_->GetErrInfo());
 				return false;
 			}
 		}
@@ -73,7 +73,7 @@ mobile_index(mobile)	index		索引
 
 	bool UserRideRecordInfo()
 	{
-		LOG_DEBUG("正在创建用户使用单车记录信息表......");
+		//LOG_DEBUG("正在创建用户使用单车记录信息表......");
 		const char* pUserRideRecordInfoTable = "\
 								CREATE TABLE IF NOT EXISTS user_ride_record_info( \
 								id				int				NOT NULL primary key auto_increment, \
@@ -91,11 +91,11 @@ mobile_index(mobile)	index		索引
 								)";
 		if (!sqlconn_->Execute(pUserRideRecordInfoTable))
 		{
-			LOG_ERROR("create table userinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
+			//LOG_ERROR("create table userinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
 			printf("create bikeinfo table  table failed. error msg:%s", sqlconn_->GetErrInfo());
 			return false;
 		}
-		LOG_DEBUG("用户使用单车记录信息表创建成功！");
+		//LOG_DEBUG("用户使用单车记录信息表创建成功！");
 		return true;
 	}
 	/*表名	bikeinfo
@@ -115,7 +115,7 @@ mobile_index(mobile)	index		索引
 */
 	bool CreateBikeTable()
 	{
-		LOG_DEBUG("正在创建单车信息表......");
+		//LOG_DEBUG("正在创建单车信息表......");
 		const char* pBikeInfoTable = " \
 						CREATE TABLE IF NOT EXISTS bikeinfo( \
 						id			int				NOT NULL primary key auto_increment, \
@@ -131,11 +131,11 @@ mobile_index(mobile)	index		索引
 		//const char* pBikeInfoTable = "create table if not exists bikeinfo(id int, name char(6));";
 		if (!sqlconn_->Execute(pBikeInfoTable))
 		{
-			LOG_ERROR("create bikeinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
+			//LOG_ERROR("create bikeinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
 			printf("create bikeinfo table failed. error msg:%s", sqlconn_->GetErrInfo());
 			return false;
 		}
-		LOG_DEBUG("单车信息表创建成功！");
+		//LOG_DEBUG("单车信息表创建成功！");
 		return true;
 
 	}

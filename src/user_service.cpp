@@ -27,10 +27,13 @@ bool UserService::verifyUserInfo(std::string& userName, std::string& userPwd)
 {
 	char sql_content[1024] = { 0 };
 
-	sprintf(sql_content, "select * from userinfo where username = '%s' and userpassword='%s'", \
+	sprintf(sql_content,
+		"SELECT 1 FROM userinfo WHERE username = '%s' AND userpassword = '%s' LIMIT 1",
 		userName.c_str(), userPwd.c_str());
 
+
 	SqlRecordSet record_set;
+
 	if (!sql_conn_->Execute(sql_content, record_set))
 	{
 		return false;
@@ -45,15 +48,15 @@ bool UserService::insert(std::string & userName, std::string& userPwd)
 	sprintf(sql_content, "insert into userinfo(username, userpassword)  \
 							values(\"%s\", \"%s\")", userName.c_str(), userPwd.c_str());
 
-	LOG_DEBUG("executing sql insert into userinfo(username, userpassword)....");
-	LOG_DEBUG("sql: [%s]", sql_content);
+	//LOG_DEBUG("executing sql insert into userinfo(username, userpassword)....");
+	//LOG_DEBUG("sql: [%s]", sql_content);
 	//if (!sql_conn_->Execute(sql_content, record_set))
 	if (!sql_conn_->Execute(sql_content))
 	{
-		LOG_ERROR("执行数据库插入语句失败！\n");
+		//LOG_ERROR("执行数据库插入语句失败！\n");
 		return false;
 	}
-	LOG_DEBUG("执行sql: [%s]成功！\n", sql_content);
+	//LOG_DEBUG("执行sql: [%s]成功！\n", sql_content);
 
 	//return (record_set.GetRowCount() != 0);
 	return true;

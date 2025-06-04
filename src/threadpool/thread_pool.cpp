@@ -13,58 +13,112 @@ static int debug = 1;
 
 thread_pool_t* thread_pool_init()
 {
+ //   int             err;
+ //   pthread_t       tid;
+ //   uint_t          n;
+ //   pthread_attr_t  attr;
+	//thread_pool_t   *tp=NULL;
+
+	//tp = (thread_pool_t*)calloc(1,sizeof(thread_pool_t));
+
+	//if(tp == NULL){
+	//    fprintf(stderr, "thread_pool_init: calloc failed!\n");
+	//}
+
+	//thread_pool_init_default(tp, NULL);
+
+ //   thread_pool_queue_init(&tp->queue);
+
+ //   if (thread_mutex_create(&tp->mtx) != T_OK) {
+	//	free(tp);
+ //       return NULL;
+ //   }
+
+ //   if (thread_cond_create(&tp->cond) != T_OK) {
+ //       (void) thread_mutex_destroy(&tp->mtx);
+	//	free(tp);
+ //       return NULL;
+ //   }
+
+ //   err = pthread_attr_init(&attr);
+ //   if (err) {
+ //       fprintf(stderr, "pthread_attr_init() failed, reason: %s\n",strerror(errno));
+	//	free(tp);
+ //       return NULL;
+ //   }
+
+ //   err = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);    //设置线程为分离状态，使得线程在完成任务后会自动释放资源。
+ //   if (err) {
+ //       fprintf(stderr, "pthread_attr_setdetachstate() failed, reason: %s\n",strerror(errno));
+	//	free(tp);
+ //       return NULL;
+ //   }
+
+
+ //   for (n = 0; n < tp->threads; n++) {
+ //       err = pthread_create(&tid, &attr, thread_pool_cycle, tp);
+ //       if (err) {
+ //           fprintf(stderr, "pthread_create() failed, reason: %s\n",strerror(errno));
+	//		free(tp);
+ //           return NULL;
+ //       }
+ //   }
+
+ //   (void) pthread_attr_destroy(&attr);//线程属性对象（pthread_attr_t 类型）在不再需要时应该销毁，以释放与其关联的资源。
+
+ //   return tp;
+    return thread_pool_init_with_threads(DEFAULT_THREADS_NUM, "default");
+}
+
+thread_pool_t* thread_pool_init_with_threads(uint_t threads, const char* name)
+{
     int             err;
     pthread_t       tid;
     uint_t          n;
     pthread_attr_t  attr;
-	thread_pool_t   *tp=NULL;
-
-	tp = (thread_pool_t*)calloc(1,sizeof(thread_pool_t));
-
-	if(tp == NULL){
-	    fprintf(stderr, "thread_pool_init: calloc failed!\n");
-	}
-
-	thread_pool_init_default(tp, NULL);
-
-    thread_pool_queue_init(&tp->queue);
-
-    if (thread_mutex_create(&tp->mtx) != T_OK) {
-		free(tp);
+    thread_pool_t* tp = (thread_pool_t*)calloc(1, sizeof(thread_pool_t));
+    if (tp == NULL) {
+        fprintf(stderr, "thread_pool_init: calloc failed!\n");
         return NULL;
     }
 
-    if (thread_cond_create(&tp->cond) != T_OK) {
-        (void) thread_mutex_destroy(&tp->mtx);
-		free(tp);
+    thread_pool_queue_init(&tp->queue);
+
+    tp->threads = threads > 0 ? threads : DEFAULT_THREADS_NUM;
+    tp->max_queue = DEFAULT_QUEUE_NUM;
+    tp->name = strdup(name ? name : "custom");
+
+    if (thread_mutex_create(&tp->mtx) != T_OK ||
+        thread_cond_create(&tp->cond) != T_OK) {
+        free(tp);
         return NULL;
     }
 
     err = pthread_attr_init(&attr);
     if (err) {
-        fprintf(stderr, "pthread_attr_init() failed, reason: %s\n",strerror(errno));
-		free(tp);
+        fprintf(stderr, "pthread_attr_init() failed: %s\n", strerror(errno));
+        free(tp);
         return NULL;
     }
 
-    err = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);    //设置线程为分离状态，使得线程在完成任务后会自动释放资源。
-    if (err) {
-        fprintf(stderr, "pthread_attr_setdetachstate() failed, reason: %s\n",strerror(errno));
-		free(tp);
-        return NULL;
-    }
-
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
     for (n = 0; n < tp->threads; n++) {
         err = pthread_create(&tid, &attr, thread_pool_cycle, tp);
         if (err) {
-            fprintf(stderr, "pthread_create() failed, reason: %s\n",strerror(errno));
-			free(tp);
+            fprintf(stderr, "pthread_create() failed: %s\n", strerror(errno));
+            free(tp);
             return NULL;
         }
     }
 
-    (void) pthread_attr_destroy(&attr);//线程属性对象（pthread_attr_t 类型）在不再需要时应该销毁，以释放与其关联的资源。
+    pthread_attr_destroy(&attr);
+
+    if (debug) {
+        fprintf(stderr,
+            "thread_pool_init_with_threads, name: %s, threads: %u, max_queue: %d\n",
+            tp->name, tp->threads, tp->max_queue);
+    }
 
     return tp;
 }

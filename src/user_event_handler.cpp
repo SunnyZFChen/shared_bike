@@ -105,8 +105,8 @@ MobileCodeRspEv * UserEventHandler::handle_mobile_code_req(MobileCodeReqEv * ev)
 {
 	i32 verCode = 0;
 	std::string userName = ev->get_userName();
-	LOG_DEBUG("try to get moblie phone. %s validate code .", userName.c_str());
-	LOG_DEBUG("正在为用户[%s]生成随机验证码......", userName.c_str());
+	/*LOG_DEBUG("try to get moblie phone. %s validate code .", userName.c_str());
+	LOG_DEBUG("正在为用户[%s]生成随机验证码......", userName.c_str());*/
 
 	//printf("try to get moblie phone %s validate code .\n", mobile_.c_str());
 	verCode = code_gen();
@@ -115,7 +115,7 @@ MobileCodeRspEv * UserEventHandler::handle_mobile_code_req(MobileCodeReqEv * ev)
 	m2c_[userName] = verCode;
 	thread_mutex_unlock(&pm_);
 	//printf("mobile:%s, code:%d\n", mobile_.c_str(), icode);
-	LOG_DEBUG("用户[%s]验证码[%d]已生成！", userName.c_str(), verCode);
+	//LOG_DEBUG("用户[%s]验证码[%d]已生成！", userName.c_str(), verCode);
 
 	return new MobileCodeRspEv(ERRC_SUCCESS, verCode);
 }
@@ -128,7 +128,7 @@ RegisterResEv* UserEventHandler::handle_user_register_req(RegisterReqEv* ev)
 
 	const char* str_userName = userName.c_str();
 	//i32 icode = ev->get_icode();//拿出验证码
-	LOG_DEBUG("正在匹配用户[%s]->验证码[%d]......", str_userName, verCode);
+	//LOG_DEBUG("正在匹配用户[%s]->验证码[%d]......", str_userName, verCode);
 	thread_mutex_lock(&pm_);
 
 	auto iter = m2c_.find(userName);
@@ -139,42 +139,42 @@ RegisterResEv* UserEventHandler::handle_user_register_req(RegisterReqEv* ev)
 
 	if (((iter != m2c_.end()) && (verCode != iter->second)) || (iter == m2c_.end()))
 	{
-		LOG_WARN("用户[%s]和验证码[%d]匹配失败！\n", str_userName, verCode);
+		//LOG_WARN("用户[%s]和验证码[%d]匹配失败！\n", str_userName, verCode);
 		thread_mutex_unlock(&pm_);
 		return new RegisterResEv(userName, userPwd, ERRC_INVALID_DATA);
 	}
 	thread_mutex_unlock(&pm_);
-	LOG_DEBUG("用户[%s]验证码[%d]匹配成功！", str_userName, verCode);
+	//LOG_DEBUG("用户[%s]验证码[%d]匹配成功！", str_userName, verCode);
 
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new RegisterResEv(userName, userPwd, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 	UserService us(mysqlconn);
 	bool result = false;
 
 	if (!us.exist(userName))
 	{
-		LOG_DEBUG("该用户为共享单车新用户，正在为该用户[%s]初始化账户......", userName.c_str());
+		//LOG_DEBUG("该用户为共享单车新用户，正在为该用户[%s]初始化账户......", userName.c_str());
 		//std::cout << "us.insert(mobile)=" << mobile << std::endl;
 		result = us.insert(userName, userPwd);
 		if (!result)
 		{
-			LOG_DEBUG("新用户[%s]信息初始化失败！", userName.c_str());
+			//LOG_DEBUG("新用户[%s]信息初始化失败！", userName.c_str());
 			return new RegisterResEv(userName, userPwd, ERRO_PROCCESS_FALED);
 		}
-		LOG_DEBUG("新用户[%s]信息注册完成，信息已录入数据库.", userName.c_str());
+		//LOG_DEBUG("新用户[%s]信息注册完成，信息已录入数据库.", userName.c_str());
 		return new RegisterResEv(userName, userPwd, ERRC_SUCCESS);
 	}
 	else
 	{
-		LOG_DEBUG("用户[%s]已注册，驳回注册请求", userName.c_str());
+		//LOG_DEBUG("用户[%s]已注册，驳回注册请求", userName.c_str());
 		return new RegisterResEv(userName, userPwd, ERRC_INVALID_MSG);
 	}
 	
@@ -189,14 +189,14 @@ AddBikeResEv* UserEventHandler::handle_addBike_req(AddBikeReqEv* ev)
 
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_addBike_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_addBike_req - Database init failed. exit!\n");
 		return new AddBikeResEv(bikeid, longitude, latitude, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 	UserService us(mysqlconn);
 
 	char sql_content[1024];
@@ -204,7 +204,7 @@ AddBikeResEv* UserEventHandler::handle_addBike_req(AddBikeReqEv* ev)
 	SqlRecordSet record_set;
 	if (!us.findBikeInfo(sql_content, record_set))
 	{
-		LOG_DEBUG("sql[%s]语句执行失败！错误信息：%s", sql_content, mysqlconn->GetErrInfo());
+		//LOG_DEBUG("sql[%s]语句执行失败！错误信息：%s", sql_content, mysqlconn->GetErrInfo());
 		return new AddBikeResEv(bikeid, longitude, latitude, ERRO_PROCCESS_FALED);
 	}
 
@@ -218,7 +218,7 @@ AddBikeResEv* UserEventHandler::handle_addBike_req(AddBikeReqEv* ev)
 		SqlRecordSet record_set;
 		if (!us.findBikeInfo(sql_content, record_set))
 		{
-			LOG_DEBUG("查询单车信息MAX(devno)失败！错误信息：%s", mysqlconn->GetErrInfo());
+			//LOG_DEBUG("查询单车信息MAX(devno)失败！错误信息：%s", mysqlconn->GetErrInfo());
 			return new AddBikeResEv(bikeid, longitude, latitude, ERRO_PROCCESS_FALED);
 		}
 		MYSQL_ROW row = record_set.FetchRow();
@@ -231,10 +231,10 @@ AddBikeResEv* UserEventHandler::handle_addBike_req(AddBikeReqEv* ev)
 
 	if (!us.addBike(maxBikeId, longitude, latitude))
 	{
-		LOG_DEBUG("添加单车[%d]信息失败", maxBikeId);
+		//LOG_DEBUG("添加单车[%d]信息失败", maxBikeId);
 		return new AddBikeResEv(maxBikeId, longitude, latitude, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("添加单车[%d]，经纬度(%lf, %lf)成功！", maxBikeId, longitude, latitude);
+	//LOG_DEBUG("添加单车[%d]，经纬度(%lf, %lf)成功！", maxBikeId, longitude, latitude);
 	return new AddBikeResEv(maxBikeId, longitude, latitude, ERRC_SUCCESS);
 }
 
@@ -243,22 +243,22 @@ DeleteBikeResEv* UserEventHandler::handle_deleteBike_req(DeleteBikeReqEv* ev)
 	const i32 bikeid = ev->get_bikeId();
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_addBike_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_addBike_req - Database init failed. exit!\n");
 		return new DeleteBikeResEv(bikeid, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 	UserService us(mysqlconn);
 
 	if (!us.deleteBike(bikeid))
 	{
-		LOG_DEBUG("移除单车[%d]失败", bikeid);
+		//LOG_DEBUG("移除单车[%d]失败", bikeid);
 		return new DeleteBikeResEv(bikeid, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("移除单车[%d]成功！", bikeid);
+	//LOG_DEBUG("移除单车[%d]成功！", bikeid);
 	return new DeleteBikeResEv(bikeid, ERRC_SUCCESS);
 }
 
@@ -268,7 +268,8 @@ i32 UserEventHandler::code_gen()
 	srand((unsigned int)time(NULL));
 
 	code = (unsigned int)(rand() % (999999 - 100000) + 100000);
-	LOG_DEBUG("随机验证码已生成！");
+	//LOG_DEBUG("随机验证码已生成！");
+	printf("产生验证码为:%ld",code);
 	return code;
 }
 
@@ -280,28 +281,28 @@ LoginResEv * UserEventHandler::handle_login_req(LoginReqEv * ev)
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new LoginResEv(userName, userPwd, 0, ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 
 	UserService us(mysqlconn);
 	if (!us.verifyUserInfo(userName, userPwd))
 	{
-		LOG_DEBUG("用户账号[%s]和密码[%s]信息匹配失败!\n", userName.c_str(), userPwd.c_str());
+		//LOG_DEBUG("用户账号[%s]和密码[%s]信息匹配失败!\n", userName.c_str(), userPwd.c_str());
 		return new LoginResEv(userName, userPwd, 0, ERRC_INVALID_MSG);;
 	}	
 	if (userName == "czf" && userPwd == "czf") {
-		LOG_DEBUG("管理员[%s]已登录!\n", userName.c_str());
+		//LOG_DEBUG("管理员[%s]已登录!\n", userName.c_str());
 		return new LoginResEv(userName, userPwd, 1, ERRC_SUCCESS);;
 	}
 	
-	LOG_DEBUG("用户[%s]登陆成功!\n", userName.c_str());		
+	//LOG_DEBUG("用户[%s]登陆成功!\n", userName.c_str());		
 	return new LoginResEv(userName, userPwd, 0, ERRC_SUCCESS);;
 }
 
@@ -310,15 +311,15 @@ bikeScanQRStartResponseEv* UserEventHandler::handle_bike_scanQRSatrt_req(bikeSca
 {
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....handle_bike_scanQRSatrt_req");
+	//LOG_DEBUG("正在打开数据库.....handle_bike_scanQRSatrt_req");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new bikeScanQRStartResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
 
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 
 	UserService us(mysqlconn);
 
@@ -333,21 +334,21 @@ bikeScanQRStartResponseEv* UserEventHandler::handle_bike_scanQRSatrt_req(bikeSca
 	sprintf(sql_content_ride_record, "insert into user_ride_record_info(username,bikeId,bikeStatus,start_time, start_point) \
 		values(\"%s\", %d, %d, FROM_UNIXTIME(%d, '%%Y-%%m-%%d %%H:%%i:%%S'),GeomFromText('POINT(%lf %lf)'))", 
 		ev->get_userName().c_str(), ev->get_bikeId(), BIKE_RIDE_START, ev->get_timestamp(),ev->get_longitude(), ev->get_latitude());
-	LOG_DEBUG("sql_content:[%s]", sql_content_ride_record);
+	//LOG_DEBUG("sql_content:[%s]", sql_content_ride_record);
 	
 	if (!us.insertUseRideRecord(sql_content_ride_record))
 	{
-		LOG_DEBUG("用户骑行记录插入user_ride_record_info失败！");
-		LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("用户骑行记录插入user_ride_record_info失败！");
+		//LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRStartResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
 	if (!us.updataBikeinfo(sql_content_updataBikeinfo))
 	{
-		LOG_DEBUG("单车状态bikeinfo信息更新失败！");
-		LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("单车状态bikeinfo信息更新失败！");
+	//	LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRStartResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
-	LOG_DEBUG("用户骑行记录插入user_ride_record_info成功！单车状态bikeinfo信息已更新！");
+	//LOG_DEBUG("用户骑行记录插入user_ride_record_info成功！单车状态bikeinfo信息已更新！");
 	return new bikeScanQRStartResponseEv(ERRC_SUCCESS, ev->get_timestamp(), ev->get_longitude(), ev->get_latitude());;
 }
 //根据用户扫码还车请求对数据进行处理，并生成扫码还车响应事件
@@ -355,40 +356,40 @@ bikeScanQREndResponseEv* UserEventHandler::handle_bike_scanQREnd_req(bikeScanQRE
 {
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new bikeScanQREndResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
-	LOG_DEBUG("打开数据库成功！handle_bike_scanQREnd_req");
+	//LOG_DEBUG("打开数据库成功！handle_bike_scanQREnd_req");
 
 	UserService us(mysqlconn);
 
 	char sql_content_ride_record[1024];
 	char sql_content_updataBikeinfo[1024];
-	LOG_DEBUG("正在更新单车信息...");
+	//LOG_DEBUG("正在更新单车信息...");
 	sprintf(sql_content_updataBikeinfo, "UPDATE bikeinfo SET status=%d, tmsg= 'bike ride end, waiting for use', \ 
 		time = FROM_UNIXTIME(%d, '%%Y-%%m-%%d %%H:%%i:%%S'), bike_point = GeomFromText('POINT(%lf %lf)') WHERE devno = %d",
 		BIKE_RIDE_END, ev->get_timestamp(), ev->get_longitude(), ev->get_latitude(), ev->get_bikeId());
-	LOG_DEBUG("正在更新用户骑行记录...");
+	//LOG_DEBUG("正在更新用户骑行记录...");
 	sprintf(sql_content_ride_record, "insert into user_ride_record_info(username,bikeId,bikeStatus,end_time, end_point) \
 		values(\"%s\", %d, %d, FROM_UNIXTIME(%d, '%%Y-%%m-%%d %%H:%%i:%%S'),GeomFromText('POINT(%lf %lf)'))",
 		ev->get_userName().c_str(), ev->get_bikeId(), BIKE_RIDE_END, ev->get_timestamp(), ev->get_longitude(), ev->get_latitude());
 
 	if (!us.insertUseRideRecord(sql_content_ride_record))
 	{
-		LOG_DEBUG("更新数据库user_ride_record_info失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("更新数据库user_ride_record_info失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQREndResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
 	if (!us.updataBikeinfo(sql_content_updataBikeinfo))
 	{
-		LOG_DEBUG("单车状态bikeinfo信息更新失败！");
-		LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("单车状态bikeinfo信息更新失败！");
+		//LOG_DEBUG("错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQREndResponseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
-	LOG_DEBUG("单车信息及用户骑行记录更新成功！已生成扫码骑行响应事件");
+	//LOG_DEBUG("单车信息及用户骑行记录更新成功！已生成扫码骑行响应事件");
 
 	return new bikeScanQREndResponseEv(ERRC_SUCCESS, ev->get_timestamp(), ev->get_longitude(), ev->get_latitude());
 }
@@ -398,14 +399,14 @@ bikeScanQRFaultResponseEv* UserEventHandler::handle_bike_scanQRFault_req(bikeSca
 {
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new bikeScanQRFaultResponseEv(ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 
 	UserService us(mysqlconn);
 
@@ -422,15 +423,15 @@ bikeScanQRFaultResponseEv* UserEventHandler::handle_bike_scanQRFault_req(bikeSca
 
 	if (!us.insertUseRideRecord(sql_content_ride_record))
 	{
-		LOG_DEBUG("插入用户记录表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("插入用户记录表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRFaultResponseEv(ERRO_PROCCESS_FALED);
 	}
 	if (!us.updataBikeinfo(sql_content_updataBikeinfo))
 	{
-		LOG_DEBUG("更新数据表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("更新数据表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRFaultResponseEv(ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("用户单车信息bikeinfo成功！");
+	//LOG_DEBUG("用户单车信息bikeinfo成功！");
 
 	return new bikeScanQRFaultResponseEv(ERRC_SUCCESS);
 }
@@ -439,14 +440,14 @@ bikeScanQRRepairFinishResponseEv* UserEventHandler::handle_bike_scanQRRepairFini
 {
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new bikeScanQRRepairFinishResponseEv(ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 
 	UserService us(mysqlconn);
 
@@ -463,16 +464,16 @@ bikeScanQRRepairFinishResponseEv* UserEventHandler::handle_bike_scanQRRepairFini
 
 	if (!us.insertUseRideRecord(sql_content_ride_record))
 	{
-		LOG_DEBUG("插入用户骑行记录表user_ride_record_info失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("插入用户骑行记录表user_ride_record_info失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRRepairFinishResponseEv(ERRO_PROCCESS_FALED);
 	}
 
 	if (!us.updataBikeinfo(sql_content_updataBikeinfo))
 	{
-		LOG_DEBUG("更新数据表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("更新数据表bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeScanQRRepairFinishResponseEv(ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("用户单车信息bikeinfo成功！");
+	//LOG_DEBUG("用户单车信息bikeinfo成功！");
 
 	return new bikeScanQRRepairFinishResponseEv(ERRC_SUCCESS);
 }
@@ -487,14 +488,14 @@ bikeInfoResponseEv* UserEventHandler::handle_bikeInfo_req(bikeInfoReqEv* ev)
 
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+	//	LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new bikeInfoResponseEv(ERRO_PROCCESS_FALED);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 
 	UserService us(mysqlconn);
 	char sql_content[1024];
@@ -502,7 +503,7 @@ bikeInfoResponseEv* UserEventHandler::handle_bikeInfo_req(bikeInfoReqEv* ev)
 	SqlRecordSet record_set;
 	if (!us.findBikeInfo(sql_content, record_set))
 	{
-		LOG_DEBUG("查询单车信息bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
+		//LOG_DEBUG("查询单车信息bikeinfo失败！错误信息：%s", mysqlconn->GetErrInfo());
 		return new bikeInfoResponseEv(ERRO_PROCCESS_FALED);
 	}
 	bikeInfoResponseEv* bikeResEv = new bikeInfoResponseEv(ERRC_SUCCESS);
@@ -515,7 +516,7 @@ bikeInfoResponseEv* UserEventHandler::handle_bikeInfo_req(bikeInfoReqEv* ev)
 	{		
 		bikeResEv->set_bikeResponse_msg(atoi(row[0]), atoi(row[1]), strtod(row[2],NULL), strtod(row[3], NULL));
 	}
-	LOG_DEBUG("同步信息已序列化完成！");
+	//LOG_DEBUG("同步信息已序列化完成！");
 	return bikeResEv;
 }
 
@@ -523,14 +524,14 @@ ListAccountRecordsResonseEv* UserEventHandler::handle_list_account_records_req(L
 {
 	std::shared_ptr<MysqlConnection> mysqlconn(new MysqlConnection);
 	_st_env_config conf_args = Iniconfig::getInstance()->getconfig();
-	LOG_DEBUG("正在打开数据库.....");
+	//LOG_DEBUG("正在打开数据库.....");
 	if (!mysqlconn->Init(conf_args.db_ip.c_str(), conf_args.db_port, conf_args.db_user.c_str(),
 		conf_args.db_pwd.c_str(), conf_args.db_name.c_str()))
 	{
-		LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
+		//LOG_ERROR("UserEventHandler::handle_login_req - Database init failed. exit!\n");
 		return new ListAccountRecordsResonseEv(ERRO_PROCCESS_FALED, 0, 0, 0);
 	}
-	LOG_DEBUG("打开数据库成功！");
+	//LOG_DEBUG("打开数据库成功！");
 	/*
 	UserService us(mysqlconn);
 	bool result = false;

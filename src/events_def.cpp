@@ -45,73 +45,73 @@ std::ostream & LoginResEv::dump(std::ostream & out) const
 
 std::ostream& ListAccountRecordsReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& ListAccountRecordsReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& ListAccountRecordsReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& ListAccountRecordsResonseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& ListAccountRecordsResonseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& ListAccountRecordsResonseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRStartReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRStartReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRStartReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRStartResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRStartResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRStartResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQREndReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQREndReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQREndReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQREndResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQREndResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQREndResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& broadcastMsgReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& broadcastMsgReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& broadcastMsgReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& broadcastMsgResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& broadcastMsgResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& broadcastMsgResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRFaultReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRFaultReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRFaultReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRFaultResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRFaultResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRFaultResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRRepairFinishReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRRepairFinishReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRRepairFinishReqEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeScanQRRepairFinishResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeScanQRRepairFinishResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeScanQRRepairFinishResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
@@ -126,13 +126,13 @@ void bikeInfoResponseEv::set_bikeResponse_msg(i32 bikeId, i32 bikeStatus, r64 lo
 
 std::ostream& bikeInfoResponseEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeInfoResponseEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeInfoResponseEv::dump(std::ostream& out) const");
 	return out;
 }
 
 std::ostream& bikeInfoReqEv::dump(std::ostream& out) const
 {
-	LOG_DEBUG("std::ostream& bikeInfoReqEv::dump(std::ostream& out) const");
+	//LOG_DEBUG("std::ostream& bikeInfoReqEv::dump(std::ostream& out) const");
 	return out;
 }
 

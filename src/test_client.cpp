@@ -7,7 +7,6 @@
 #include <event2/event.h>
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
-#include <unistd.h>  // 添加这个
 #include "bike.pb.h" // Protobuf 头文件
 
 #define EEVENTID_LOGIN_REQ 5 // 登录请求
@@ -15,7 +14,7 @@
 
 
 #define SERVER_PORT 6666
-#define SERVER_IP "192.168.251.211"
+#define SERVER_IP "192.168.31.129"
 
 typedef unsigned short u16;
 typedef unsigned int u32;
