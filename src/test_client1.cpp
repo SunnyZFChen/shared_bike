@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <thread>
 #include <vector>
 #include <mutex>
@@ -6,6 +8,7 @@
 #include <arpa/inet.h>
 #include <event2/event.h>
 #include <event2/bufferevent.h>
+#include <unistd.h>
 #include <event2/buffer.h>
 #include "bike.pb.h" // Protobuf 头文件
 
@@ -13,8 +16,8 @@
 #define EEVENTID_LOGIN_RSP 6 // 登录响应
 
 #define SERVER_PORT 6666
-#define SERVER_IP "192.168.31.129"
-#define BATCH_SIZE 10000 // 每批处理 10,000 个连接
+#define SERVER_IP "192.168.251.211"
+#define BATCH_SIZE 100 // 每批处理 10,000 个连接
 
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -46,9 +49,14 @@ int main(int argc, char **argv) {
         std::cout << "Starting batch " << (batch + 1) << " (" << startID << " to " << endID << ")...\n";
 
         // 创建当前批次的线程
-        for (int i = startID; i <= endID; ++i) {
-            threads.emplace_back(sendLoginRequest, "testuser", "testuser", i);
-        }
+       for (int i = startID; i <= endID; ++i) {
+	    std::stringstream uname;
+	    uname << "test" << std::setw(6) << std::setfill('0') << i;
+	    threads.emplace_back(sendLoginRequest, uname.str(), "123456", i);
+	     // 控制连接速率，避免服务器瞬间过载
+    	    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	}
+
 
         // 等待当前批次完成
         for (auto &t : threads) {
@@ -62,6 +70,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "All clients finished.\n";
+    std::cout << "✅ 所有客户端登录测试完成！测试完毕。\n";
     return 0;
 }
 
@@ -83,9 +92,14 @@ void sendLoginRequest(const std::string &username, const std::string &password, 
         return;
     }
 
-    bufferevent_setcb(bev, [](struct bufferevent *bev, void *arg) {
-        handleServerResponse(bev);
-    }, NULL, onEventCallback, NULL);
+    bufferevent_setcb(bev,
+        [](struct bufferevent *bev, void *arg) {
+            handleServerResponse(bev);  // 在收到数据时处理
+        },
+        NULL,
+        onEventCallback,
+        NULL
+    );
     bufferevent_enable(bev, EV_READ | EV_PERSIST);
 
     // 构造 Protobuf 消息
@@ -115,10 +129,15 @@ void sendLoginRequest(const std::string &username, const std::string &password, 
         return;
     }
 
-    event_base_dispatch(base); // 进入事件循环
+    // ✅ 方法 2：设置最大等待时间（5秒）后自动退出
+    struct timeval timeout = {5, 0};
+    event_base_loopexit(base, &timeout);
+
+    event_base_dispatch(base); // 阻塞直到退出
     bufferevent_free(bev);
     event_base_free(base);
 }
+
 
 void handleServerResponse(struct bufferevent *bev) {
     char response[1024];
@@ -140,6 +159,10 @@ void handleServerResponse(struct bufferevent *bev) {
                 std::cout << "Login Response Received:\n";
                 std::cout << "  Username: " << lr.username() << "\n";
                 std::cout << "  ResCode: " << lr.rescode() << "\n";
+
+                // ✅ 方法 1：成功收到响应后立即退出事件循环
+                struct event_base* base = bufferevent_get_base(bev);
+                if (base) event_base_loopexit(base, NULL);
             } else {
                 std::cerr << "Failed to parse login response.\n";
             }

@@ -176,3 +176,15 @@ sudo apt-get install mysql-server
 
 ![alt text](image.png)
 ![alt text](image-1.png)
+
+## 系统测试
+
+编写了测试程序，test_clinet, 可以使用下面的命令进行编译
+之所以使用用户安装库路径，是因为测试程序使用的protobuf编译版本与系统安装的库版本不同，而用户安装版本一致，所以添加了指定库路径
+如果系统已安装的编译库路径符合，则无需添加
+在此之前，需要有完整编译过的bike.pb.cc/.h文件
+
+```bash
+g++ -std=c++11 -o testClient test_client1.cpp bike.pb.cc -I/usr/local/include -L/usr/local/lib -lprotobuf -levent -lpthread
+```
+
