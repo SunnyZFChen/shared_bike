@@ -48,8 +48,8 @@ BOOL DispatchMsgService::open()
 
 
 
-	tp = thread_pool_init_with_threads(12, "request_pool");
-	response_tp = thread_pool_init_with_threads(8, "response_pool");
+	tp = thread_pool_init_with_threads(2, "request_pool");
+	response_tp = thread_pool_init_with_threads(1, "response_pool");
 
 	//LOG_DEBUG("当前线程池中的线程数为：tp->threads=%d", tp->threads);
 	//LOG_DEBUG("线程池能处理的最大任务数为：tp->max_queue=%d", tp->max_queue);
