@@ -45,21 +45,10 @@ double get_cpu_usage() {
 
 
 pthread_mutex_t num_thread_mutex = PTHREAD_MUTEX_INITIALIZER;  // 线程池的互斥锁
-int current_threads;  // 当前线程数
 int max_threads = MAX_THREADS;
 int min_threads = MIN_THREADS;
 volatile int stop_adjust_thread = 0; // 0表示运行，1表示停止
 pthread_t adjust_tid;
-
-
-void init_thread_pool(int tp_current_threads) {
-    pthread_mutex_lock(&num_thread_mutex);  // 获取锁
-
-    // 初始化线程数，确保是线程安全的
-    current_threads = (tp_current_threads > 0) ? tp_current_threads : DEFAULT_THREADS_NUM;
-
-    pthread_mutex_unlock(&num_thread_mutex);  // 释放锁
-}
 
 
 void adjust_thread_pool_size(thread_pool_t* tp) {
@@ -67,17 +56,57 @@ void adjust_thread_pool_size(thread_pool_t* tp) {
         double cpu_usage = get_cpu_usage();  // 获取CPU利用率
         printf("Current CPU Usage: %.2f%%\n", cpu_usage);
 
-        pthread_mutex_lock(&num_thread_mutex);
-        if (cpu_usage > HIGH_LOAD_THRESHOLD && current_threads < max_threads) {
-            current_threads++;  // 增加线程数
-            printf("Increasing thread pool size to %d\n", current_threads);
-        }
-        else if (cpu_usage < LOW_LOAD_THRESHOLD && current_threads > min_threads) {
-            current_threads--;  // 减少线程数
-            printf("Decreasing thread pool size to %d\n", current_threads);
-        }
-        pthread_mutex_unlock(&num_thread_mutex);
+        pthread_mutex_lock(&tp->mtx);
 
+        if (cpu_usage > HIGH_LOAD_THRESHOLD && tp->threads < MAX_THREADS) {
+            // 增加线程数
+            pthread_attr_t attr;
+            pthread_t tid;
+            int err = pthread_attr_init(&attr);
+            if (err) {
+                fprintf(stderr, "pthread_attr_init() failed: %s\n", strerror(errno));
+            }
+            else {
+                pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);  // 设置线程为分离状态
+
+                err = pthread_create(&tid, &attr, thread_pool_cycle, tp);
+                if (err) {
+                    fprintf(stderr, "pthread_create() failed: %s\n", strerror(errno));
+                }
+                else {
+                    tp->threads++;  // 增加线程数
+                    printf("Increasing thread pool size to %d\n", tp->threads);
+                }
+            }
+            pthread_attr_destroy(&attr);
+        }
+        else if (cpu_usage < LOW_LOAD_THRESHOLD && tp->threads > MIN_THREADS) {
+            // 减少线程数，发布退出任务给最后一个线程
+            thread_task_t task;
+            volatile uint_t lock;
+
+            memset(&task, '\0', sizeof(thread_task_t));
+
+            task.handler = thread_pool_exit_handler;  // 设置退出任务的处理函数
+            task.ctx = (void*)&lock;
+
+            // 只发布退出任务给最后一个线程
+            lock = 1;
+            if (thread_task_post(tp, &task) != T_OK) {
+                pthread_mutex_unlock(&tp->mtx);
+                return;
+            }
+
+            // 等待线程完成退出任务并退出
+            while (lock) {
+                sched_yield();  // 让出CPU资源，确保线程退出
+            }
+
+            tp->threads--;  // 减少线程数
+            printf("Decreasing thread pool size to %d\n", tp->threads);
+        }
+
+        pthread_mutex_unlock(&tp->mtx);
         sleep(ADJUST_INTERVAL);  // 每隔一段时间调整一次
     }
     printf("Adjustment thread exiting...\n");
@@ -184,7 +213,6 @@ thread_pool_t* thread_pool_init_with_threads(uint_t threads, const char* name)
         }
     }
     // 启动调整线程池线程数的线程
-    init_thread_pool(tp->threads);
     err = pthread_create(&adjust_tid, NULL, (void* (*)(void*))adjust_thread_pool_size, tp);
     if (err) {
         fprintf(stderr, "pthread_create() for adjust thread failed: %s\n", strerror(errno));
