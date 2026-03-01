@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>LoadProgressStyle.qml</file>
+        <file>+android/LoadProgressStyle.qml</file>
+        <file>qwebchannel.js</file>
+        <file>images/bike_32.ico</file>
+        <file>images/bike_48.ico</file>
+        <file>images/end.ico</file>
+        <file>images/start.ico</file>
+        <file>LoginPage.qml</file>
+        <file>MsgDialog.qml</file>
+        <file>MapWindow.qml</file>
+        <file>images/bike.gif</file>
+        <file>images/tip.png</file>
+        <file>RegisterPage.qml</file>
+    </qresource>
+</RCC>
