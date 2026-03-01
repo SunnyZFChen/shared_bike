@@ -10,6 +10,11 @@ extern "C" {
 #define DEFAULT_THREADS_NUM 14
 #define DEFAULT_QUEUE_NUM  65535
 
+#define MAX_THREADS 100  // 最大线程数
+#define MIN_THREADS 10   // 最小线程数
+#define HIGH_LOAD_THRESHOLD 70  // CPU使用率高于此值时增加线程数
+#define LOW_LOAD_THRESHOLD 30   // CPU使用率低于此值时减少线程数
+#define ADJUST_INTERVAL 2       // 动态调整的时间间隔（秒）
 
 	typedef unsigned long         atomic_uint_t;
 	typedef struct thread_task_s  thread_task_t;
