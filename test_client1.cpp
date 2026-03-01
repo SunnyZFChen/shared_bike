@@ -7,13 +7,15 @@
 #include <event2/event.h>
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
+#include <unistd.h>
+
 #include "bike.pb.h" // Protobuf 头文件
 
 #define EEVENTID_LOGIN_REQ 5 // 登录请求
 #define EEVENTID_LOGIN_RSP 6 // 登录响应
 
 #define SERVER_PORT 6666
-#define SERVER_IP "192.168.31.129"
+#define SERVER_IP "192.168.123.211"
 #define BATCH_SIZE 10000 // 每批处理 10,000 个连接
 
 typedef unsigned short u16;
